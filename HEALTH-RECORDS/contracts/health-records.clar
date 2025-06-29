@@ -106,7 +106,7 @@
       record-hash: record-hash,
       record-type: record-type,
       provider: tx-sender,
-      timestamp: block-height,
+      timestamp: burn-block-height,
       emergency-accessible: emergency-access,
       encrypted: true
     })
@@ -122,8 +122,8 @@
     (map-set access-permissions {patient: tx-sender, provider: provider} {
       read-access: read-access,
       write-access: write-access,
-      expiry: (+ block-height duration),
-      granted-at: block-height
+      expiry: (+ burn-block-height duration),
+      granted-at: burn-block-height
     })
     (ok true)
   )
