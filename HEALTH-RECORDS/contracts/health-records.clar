@@ -59,31 +59,37 @@
 )
 
 (define-public (register-provider (name (string-ascii 100)) (license (string-ascii 50)) (specialty (string-ascii 50)))
-  (map-set healthcare-providers tx-sender {
-    name: name,
-    license-number: license,
-    specialty: specialty,
-    verified: false
-  })
-  (ok true)
-)
-
-(define-public (verify-provider (provider principal))
-  (asserts! (is-eq tx-sender contract-owner) err-owner-only)
-  (let ((provider-info (unwrap! (get-provider-info provider) err-record-not-found)))
-    (map-set healthcare-providers provider (merge provider-info {verified: true}))
+  (begin
+    (map-set healthcare-providers tx-sender {
+      name: name,
+      license-number: license,
+      specialty: specialty,
+      verified: false
+    })
     (ok true)
   )
 )
 
+(define-public (verify-provider (provider principal))
+  (begin
+    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (let ((provider-info (unwrap! (get-provider-info provider) err-record-not-found)))
+      (map-set healthcare-providers provider (merge provider-info {verified: true}))
+      (ok true)
+    )
+  )
+)
+
 (define-public (create-patient-profile (name (string-ascii 100)) (dob uint) (emergency-contact principal) (blood-type (string-ascii 10)))
-  (map-set patient-profiles tx-sender {
-    name: name,
-    date-of-birth: dob,
-    emergency-contact: emergency-contact,
-    blood-type: blood-type
-  })
-  (ok true)
+  (begin
+    (map-set patient-profiles tx-sender {
+      name: name,
+      date-of-birth: dob,
+      emergency-contact: emergency-contact,
+      blood-type: blood-type
+    })
+    (ok true)
+  )
 )
 
 (define-public (add-medical-record (patient principal) (record-hash (string-ascii 64)) (record-type (string-ascii 50)) (emergency-access bool))
@@ -124,8 +130,10 @@
 )
 
 (define-public (revoke-access (provider principal))
-  (map-delete access-permissions {patient: tx-sender, provider: provider})
-  (ok true)
+  (begin
+    (map-delete access-permissions {patient: tx-sender, provider: provider})
+    (ok true)
+  )
 )
 
 (define-public (emergency-access-record (record-id uint))
@@ -141,9 +149,11 @@
 )
 
 (define-public (set-emergency-mode (enabled bool))
-  (asserts! (is-eq tx-sender contract-owner) err-owner-only)
-  (var-set emergency-mode enabled)
-  (ok true)
+  (begin
+    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (var-set emergency-mode enabled)
+    (ok true)
+  )
 )
 
 (define-public (update-record-access (record-id uint) (emergency-accessible bool))
